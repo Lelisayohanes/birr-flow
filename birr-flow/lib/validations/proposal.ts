@@ -4,20 +4,28 @@ export const ProposalStatusSchema = z.enum(["submitted", "shortlisted", "winner"
 
 export const createProposalSchema = z.object({
   challengeId: z.string(),
+  startupId: z.string(),
   ideaDescription: z.string().optional(),
-  budgetBreakdown: z.any().optional(), // Replace with strict schema if needed
-  milestonePlan: z.any().optional(), // Replace with strict schema if needed
+  budgetBreakdown: z.any().optional(), 
+  milestonePlan: z.any().optional(),
   pitchDeckUrl: z.string().url().optional(),
   videoUrl: z.string().url().optional(),
 });
 
-export const updateProposalSchema = z.object({
+export const updateProposalSchema = createProposalSchema.partial().omit({ challengeId: true, startupId: true }).extend({
   status: ProposalStatusSchema.optional(),
   donorScore: z.number().int().min(0).max(100).optional(),
   donorFeedback: z.string().optional(),
-  ideaDescription: z.string().optional(),
-  budgetBreakdown: z.any().optional(),
-  milestonePlan: z.any().optional(),
-  pitchDeckUrl: z.string().url().optional(),
-  videoUrl: z.string().url().optional(),
+});
+
+export const reviewProposalSchema = z.object({
+  status: ProposalStatusSchema,
+  donorScore: z.number().int().min(0).max(100).optional(),
+  donorFeedback: z.string().optional(),
+});
+
+export const feedbackToStartupSchema = z.object({
+  fromUserId: z.string(),
+  feedbackText: z.string().min(1),
+  isAnonymized: z.boolean().default(true),
 });

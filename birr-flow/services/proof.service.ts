@@ -20,6 +20,25 @@ export class ProofService {
     });
   }
 
+  static async getAllProofs(filters?: { status?: ProofStatus; milestoneId?: string; uploadedById?: string }) {
+    return prisma.proof.findMany({
+      where: {
+        ...(filters?.status && { status: filters.status }),
+        ...(filters?.milestoneId && { milestoneId: filters.milestoneId }),
+        ...(filters?.uploadedById && { uploadedById: filters.uploadedById }),
+      },
+      include: { milestone: true, uploadedBy: true, reviewedBy: true },
+      orderBy: { submittedAt: 'desc' }
+    });
+  }
+
+  static async updateProof(id: string, data: Prisma.ProofUpdateInput) {
+    return prisma.proof.update({
+      where: { id },
+      data,
+    });
+  }
+
   static async reviewProof(id: string, reviewerId: string, status: ProofStatus, comment?: string) {
     return prisma.proof.update({
       where: { id },
@@ -40,6 +59,12 @@ export class ProofService {
         proof: { connect: { id: proofId } },
         officer: { connect: { id: officerId } },
       },
+    });
+  }
+
+  static async deleteProof(id: string) {
+    return prisma.proof.delete({
+      where: { id }
     });
   }
 }

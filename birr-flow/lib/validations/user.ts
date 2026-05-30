@@ -10,6 +10,16 @@ export const userRegisterSchema = z.object({
   organization: z.string().optional(),
 });
 
+export const userLoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6), // Assuming auth has password, though schema didn't show it. Add anyway or ignore if OAuth only. Let's assume basic email or keep simple.
+});
+
+export const userUpdateSchema = z.object({
+  fullName: z.string().min(2).optional(),
+  organization: z.string().optional(),
+});
+
 export const startupProfileSchema = z.object({
   startupName: z.string().min(2),
   registrationNumber: z.string().optional(),

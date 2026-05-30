@@ -28,3 +28,8 @@ export const updateGrantSchema = z.object({
   equityPercent: z.number().min(0).max(100).optional(),
   revenueShareTerms: z.string().optional(),
 });
+
+export const createTrancheSchema = z.object({
+  milestoneId: z.string(),
+  amountReleased: z.number().positive(),
+});
