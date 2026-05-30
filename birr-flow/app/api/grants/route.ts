@@ -9,13 +9,11 @@ import prisma from "@/lib/prisma";
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
-    const startupId = searchParams.get("startupId");
+    const status = searchParams.get("status") as import("@prisma/client").GrantStatus | undefined;
+    const startupId = searchParams.get("startupId") || undefined;
+    const donorId = searchParams.get("donorId") || undefined;
     
-    if (!startupId) {
-       return NextResponse.json({ success: false, error: "startupId is required" }, { status: 400 });
-    }
-
-    const grants = await GrantService.getGrantsByStartup(startupId);
+    const grants = await GrantService.getAllGrants({ status, startupId, donorId });
     return NextResponse.json({ success: true, data: grants });
   } catch (error) {
     return NextResponse.json({ success: false, error: "Failed to fetch grants" }, { status: 500 });
@@ -24,8 +22,11 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const requestHeaders = new Headers();
+    requestHeaders.set("cookie", req.headers.get("cookie") || "");
+
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: requestHeaders
     });
 
     if (!session) {

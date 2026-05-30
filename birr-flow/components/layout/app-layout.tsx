@@ -84,7 +84,13 @@ export function AppLayout({
         {/* Navigation Items */}
         <nav className="flex-1 overflow-y-auto py-4 px-4 space-y-1">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            // If it's a root path like /startup/123, exact match
+            // Otherwise match if it starts with the href and a slash or exact
+            const isDashboard = item.name === "Dashboard";
+            const isActive = isDashboard 
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(item.href + '/');
+            
             return (
               <Link 
                 key={item.href} 

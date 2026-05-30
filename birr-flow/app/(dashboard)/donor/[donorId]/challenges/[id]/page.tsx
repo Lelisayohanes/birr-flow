@@ -43,11 +43,11 @@ export default async function ChallengeDetailsPage({ params }: ChallengeDetailsP
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" asChild>
-          <Link href={`/donor/${donorId}/challenges`}>
+        <Link href={`/donor/${donorId}/challenges`}>
+          <Button variant="outline" size="icon" type="button">
             <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
+          </Button>
+        </Link>
         <div className="flex-1">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900">{challenge.title}</h2>
           <p className="text-gray-500">Manage challenge details and review proposals.</p>

@@ -22,8 +22,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validatedData = createChallengeSchema.parse(body);
 
+    const requestHeaders = new Headers();
+    requestHeaders.set("cookie", req.headers.get("cookie") || "");
+
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: requestHeaders
     });
 
     if (!session) {

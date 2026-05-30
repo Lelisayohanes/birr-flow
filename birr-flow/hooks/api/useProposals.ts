@@ -36,7 +36,8 @@ export const useCreateProposal = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (data: Prisma.ProposalCreateInput) => 
+    // the API route validates with createProposalSchema
+    mutationFn: (data: any) => 
       apiClient<Proposal>("/api/proposals", {
         method: "POST",
         body: JSON.stringify(data),

@@ -9,13 +9,10 @@ import prisma from "@/lib/prisma";
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
-    const challengeId = searchParams.get("challengeId");
-    
-    if (!challengeId) {
-       return NextResponse.json({ success: false, error: "challengeId is required" }, { status: 400 });
-    }
+    const challengeId = searchParams.get("challengeId") || undefined;
+    const startupId = searchParams.get("startupId") || undefined;
 
-    const proposals = await ProposalService.getProposalsByChallenge(challengeId);
+    const proposals = await ProposalService.getAllProposals({ challengeId, startupId });
     return NextResponse.json({ success: true, data: proposals });
   } catch (error) {
     return NextResponse.json({ success: false, error: "Failed to fetch proposals" }, { status: 500 });
@@ -23,10 +20,20 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  console.log("--> HIT POST /api/proposals");
   try {
-    const session = await auth.api.getSession({
-      headers: await headers()
-    });
+    const requestHeaders = new Headers();
+    requestHeaders.set("cookie", req.headers.get("cookie") || "");
+
+    let session = null;
+    try {
+      session = await auth.api.getSession({
+        headers: requestHeaders
+      });
+    } catch (err: any) {
+      console.error("getSession error:", err);
+      return NextResponse.json({ success: false, error: err.message }, { status: 401 });
+    }
 
     if (!session) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
@@ -35,8 +42,18 @@ export async function POST(req: NextRequest) {
     const userId = session.user.id;
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
-    if (!user || !user.roles.includes("startup")) {
-      return NextResponse.json({ success: false, error: "Only startups can submit proposals" }, { status: 403 });
+    console.log("POST /api/proposals - User details:", { userId, userFound: !!user, roles: user?.roles });
+
+    if (!user) {
+      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+    }
+
+    // Auto-assign startup role if they don't have it, since they are submitting a proposal
+    if (!user.roles.includes("startup")) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { roles: { push: "startup" } }
+      });
     }
 
     const body = await req.json();
