@@ -9,11 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@better-fetch/fetch": "^1.1.21",
     "@prisma/client": "^5.22.0",
     "@tanstack/react-query": "^5.100.14",
     "@tanstack/react-table": "^8.21.3",
+    "better-auth": "^1.6.12",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.4.2",
+    "kysely": "0.28.17",
     "lucide-react": "^1.17.0",
     "next": "16.2.6",
     "react": "19.2.4",
@@ -35,5 +39,10 @@
     "tailwindcss": "^4",
     "tsx": "^4.22.3",
     "typescript": "^5"
+  },
+  "overrides": {
+    "better-auth": {
+      "kysely": "0.28.17"
+    }
   }
 }

@@ -6,7 +6,7 @@ export const DonorTypeSchema = z.enum(["grant", "impact_fund", "corporate"]);
 export const userRegisterSchema = z.object({
   email: z.string().email(),
   fullName: z.string().min(2).optional(),
-  role: UserRoleSchema,
+  roles: z.array(UserRoleSchema),
   organization: z.string().optional(),
 });
 

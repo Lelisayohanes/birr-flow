@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { ChallengeService } from "@/services/challenge.service";
 import { createChallengeSchema } from "@/lib/validations/challenge";
 import { z } from "zod";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export async function GET(req: NextRequest) {
   try {
@@ -20,11 +22,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validatedData = createChallengeSchema.parse(body);
 
-    // Assuming donorId is passed or extracted from auth token (mocking with body for now)
-    const donorId = body.donorId; 
-    if (!donorId) {
-       return NextResponse.json({ success: false, error: "donorId is required" }, { status: 400 });
+    const session = await auth.api.getSession({
+      headers: await headers()
+    });
+
+    if (!session) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
+
+    // Use session user ID as donorId, ignore body.donorId
+    const donorId = session.user.id;
 
     const challenge = await ChallengeService.createChallenge({
       ...validatedData,

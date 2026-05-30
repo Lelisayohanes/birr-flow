@@ -13,7 +13,7 @@ export const userKeys = {
 export const useUsers = (role?: Role) => {
   return useQuery({
     queryKey: userKeys.list({ role }),
-    queryFn: () => apiClient<User[]>(`/api/users${role ? `?role=${role}` : ""}`),
+    queryFn: () => apiClient<User[]>(`/api/users${role ? `?roles=${role}` : ""}`),
   });
 };
 
