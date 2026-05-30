@@ -45,4 +45,10 @@ export class ChallengeService {
       data: { status },
     });
   }
+  
+  static async deleteChallenge(id: string) {
+    return prisma.challenge.delete({
+      where: { id },
+    });
+  }
 }

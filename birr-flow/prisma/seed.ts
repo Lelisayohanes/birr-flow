@@ -24,36 +24,36 @@ async function main() {
 
   // ========== 1. USERS ==========
   // Donors
-  const donorEthiopia = await prisma.user.create({ data: { email: 'donor@moi.gov.et', fullName: 'Ministry of Innovation - Ethiopia', role: 'donor', organization: 'Ministry of Innovation and Technology', verified: true } })
-  const donorGates = await prisma.user.create({ data: { email: 'grants@gatesfoundation.org', fullName: 'Bill & Melinda Gates Foundation', role: 'donor', organization: 'Gates Foundation', verified: true } })
-  const donorEU = await prisma.user.create({ data: { email: 'funding@europa.eu', fullName: 'European Union - Delegation to Ethiopia', role: 'donor', organization: 'EU', verified: true } })
-  const donorSafaricom = await prisma.user.create({ data: { email: 'csr@safaricom.et', fullName: 'Safaricom Ethiopia', role: 'donor', organization: 'Safaricom', verified: true } })
-  const donorMastercard = await prisma.user.create({ data: { email: 'grants@mastercardfdn.org', fullName: 'Mastercard Foundation', role: 'donor', organization: 'Mastercard Foundation', verified: true } })
-  const donorUSAID = await prisma.user.create({ data: { email: 'ethiopia@usaid.gov', fullName: 'USAID Ethiopia', role: 'donor', organization: 'USAID', verified: true } })
+  const donorEthiopia = await prisma.user.create({ data: { email: 'donor@moi.gov.et', fullName: 'Ministry of Innovation - Ethiopia', roles: ['donor'], organization: 'Ministry of Innovation and Technology', verified: true } })
+  const donorGates = await prisma.user.create({ data: { email: 'grants@gatesfoundation.org', fullName: 'Bill & Melinda Gates Foundation', roles: ['donor'], organization: 'Gates Foundation', verified: true } })
+  const donorEU = await prisma.user.create({ data: { email: 'funding@europa.eu', fullName: 'European Union - Delegation to Ethiopia', roles: ['donor'], organization: 'EU', verified: true } })
+  const donorSafaricom = await prisma.user.create({ data: { email: 'csr@safaricom.et', fullName: 'Safaricom Ethiopia', roles: ['donor'], organization: 'Safaricom', verified: true } })
+  const donorMastercard = await prisma.user.create({ data: { email: 'grants@mastercardfdn.org', fullName: 'Mastercard Foundation', roles: ['donor'], organization: 'Mastercard Foundation', verified: true } })
+  const donorUSAID = await prisma.user.create({ data: { email: 'ethiopia@usaid.gov', fullName: 'USAID Ethiopia', roles: ['donor'], organization: 'USAID', verified: true } })
 
   // Startups
-  const startupSoleRebels = await prisma.user.create({ data: { email: 'hello@sole-rebels.com', fullName: 'Sole Rebels', role: 'startup', organization: 'Sole Rebels Eco-Fashion', verified: true } })
-  const startupKacha = await prisma.user.create({ data: { email: 'founders@kacha.et', fullName: 'Kacha Digital', role: 'startup', organization: 'Kacha Payment Solutions', verified: true } })
-  const startupHelloSolar = await prisma.user.create({ data: { email: 'team@hellosolar.et', fullName: 'Hello Solar', role: 'startup', organization: 'Hello Solar Ethiopia', verified: true } })
-  const startupZayRide = await prisma.user.create({ data: { email: 'info@zayride.com', fullName: 'ZayRide', role: 'startup', organization: 'ZayRide Transport', verified: true } })
-  const startupLersha = await prisma.user.create({ data: { email: 'agri@lersha.et', fullName: 'Lersha Agritech', role: 'startup', organization: 'Lersha Digital Agriculture', verified: true } })
-  const startupDeliverAddis = await prisma.user.create({ data: { email: 'hello@deliveraddis.com', fullName: 'Deliver Addis', role: 'startup', organization: 'Deliver Addis Logistics', verified: true } })
-  const startupKubik = await prisma.user.create({ data: { email: 'info@kubik.et', fullName: 'Kubik', role: 'startup', organization: 'Kubik Plastic Recycling', verified: true } })
+  const startupSoleRebels = await prisma.user.create({ data: { email: 'hello@sole-rebels.com', fullName: 'Sole Rebels', roles: ['startup'], organization: 'Sole Rebels Eco-Fashion', verified: true } })
+  const startupKacha = await prisma.user.create({ data: { email: 'founders@kacha.et', fullName: 'Kacha Digital', roles: ['startup'], organization: 'Kacha Payment Solutions', verified: true } })
+  const startupHelloSolar = await prisma.user.create({ data: { email: 'team@hellosolar.et', fullName: 'Hello Solar', roles: ['startup'], organization: 'Hello Solar Ethiopia', verified: true } })
+  const startupZayRide = await prisma.user.create({ data: { email: 'info@zayride.com', fullName: 'ZayRide', roles: ['startup'], organization: 'ZayRide Transport', verified: true } })
+  const startupLersha = await prisma.user.create({ data: { email: 'agri@lersha.et', fullName: 'Lersha Agritech', roles: ['startup'], organization: 'Lersha Digital Agriculture', verified: true } })
+  const startupDeliverAddis = await prisma.user.create({ data: { email: 'hello@deliveraddis.com', fullName: 'Deliver Addis', roles: ['startup'], organization: 'Deliver Addis Logistics', verified: true } })
+  const startupKubik = await prisma.user.create({ data: { email: 'info@kubik.et', fullName: 'Kubik', roles: ['startup'], organization: 'Kubik Plastic Recycling', verified: true } })
 
   // Investors
-  const investorRENEW = await prisma.user.create({ data: { email: 'invest@renew.et', fullName: 'RENEW VC', role: 'investor', organization: 'RENEW Ventures', verified: true } })
-  const investorVillage = await prisma.user.create({ data: { email: 'partners@villagecapital.com', fullName: 'Village Capital', role: 'investor', organization: 'Village Capital', verified: true } })
-  const investorCepheus = await prisma.user.create({ data: { email: 'funds@cepheus.com', fullName: 'Cepheus Growth Capital', role: 'investor', organization: 'Cepheus Growth', verified: true } })
-  const investorZoscales = await prisma.user.create({ data: { email: 'contact@zoscales.com', fullName: 'Zoscales Partners', role: 'investor', organization: 'Zoscales', verified: true } })
-  const investorBGI = await prisma.user.create({ data: { email: 'investments@bgi.et', fullName: 'BGI Ethiopia Ventures', role: 'investor', organization: 'BGI Ethiopia', verified: true } })
-  const investorBlueMoon = await prisma.user.create({ data: { email: 'info@bluemoonethiopia.com', fullName: 'blueMoon', role: 'investor', organization: 'blueMoon Agribusiness Incubator', verified: true } })
+  const investorRENEW = await prisma.user.create({ data: { email: 'invest@renew.et', fullName: 'RENEW VC', roles: ['investor'], organization: 'RENEW Ventures', verified: true } })
+  const investorVillage = await prisma.user.create({ data: { email: 'partners@villagecapital.com', fullName: 'Village Capital', roles: ['investor'], organization: 'Village Capital', verified: true } })
+  const investorCepheus = await prisma.user.create({ data: { email: 'funds@cepheus.com', fullName: 'Cepheus Growth Capital', roles: ['investor'], organization: 'Cepheus Growth', verified: true } })
+  const investorZoscales = await prisma.user.create({ data: { email: 'contact@zoscales.com', fullName: 'Zoscales Partners', roles: ['investor'], organization: 'Zoscales', verified: true } })
+  const investorBGI = await prisma.user.create({ data: { email: 'investments@bgi.et', fullName: 'BGI Ethiopia Ventures', roles: ['investor'], organization: 'BGI Ethiopia', verified: true } })
+  const investorBlueMoon = await prisma.user.create({ data: { email: 'info@bluemoonethiopia.com', fullName: 'blueMoon', roles: ['investor'], organization: 'blueMoon Agribusiness Incubator', verified: true } })
 
   // Regulator (NBE)
-  const regulatorNBE = await prisma.user.create({ data: { email: 'audit@nbe.gov.et', fullName: 'National Bank of Ethiopia', role: 'regulator', organization: 'NBE', verified: true } })
-  
+  const regulatorNBE = await prisma.user.create({ data: { email: 'audit@nbe.gov.et', fullName: 'National Bank of Ethiopia', roles: ['regulator'], organization: 'NBE', verified: true } })
+
   // Grant Officers
-  const grantOfficer1 = await prisma.user.create({ data: { email: 'officer1@moi.gov.et', fullName: 'Tigist Alemu', role: 'grant_officer', organization: 'Ministry of Innovation', verified: true } })
-  const grantOfficer2 = await prisma.user.create({ data: { email: 'officer2@moi.gov.et', fullName: 'Dawit Bekele', role: 'grant_officer', organization: 'Ministry of Innovation', verified: true } })
+  const grantOfficer1 = await prisma.user.create({ data: { email: 'officer1@moi.gov.et', fullName: 'Tigist Alemu', roles: ['grant_officer'], organization: 'Ministry of Innovation', verified: true } })
+  const grantOfficer2 = await prisma.user.create({ data: { email: 'officer2@moi.gov.et', fullName: 'Dawit Bekele', roles: ['grant_officer'], organization: 'Ministry of Innovation', verified: true } })
 
   // ========== 2. PROFILES ==========
   // Donor Profiles (6)
