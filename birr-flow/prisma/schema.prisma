@@ -1,0 +1,304 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  donor
+  startup
+  investor
+  regulator
+  grant_officer
+}
+
+enum DonorType {
+  grant
+  impact_fund
+  corporate
+}
+
+enum ChallengeStatus {
+  draft
+  open
+  closed
+  completed
+}
+
+enum ParamType {
+  number
+  text
+  date
+  file
+  boolean
+}
+
+enum ProposalStatus {
+  submitted
+  shortlisted
+  winner
+  rejected
+}
+
+enum GrantStatus {
+  active
+  completed
+  defaulted
+}
+
+enum ProofType {
+  receipt
+  photo
+  pdf
+  link
+}
+
+enum ProofStatus {
+  pending
+  approved
+  rejected
+  suspicious
+}
+
+enum OfficerAction {
+  mark_suspicious
+  escalate
+  clear
+}
+
+model User {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  email        String   @unique
+  fullName     String?  @map("full_name")
+  role         Role
+  organization String?
+  verified     Boolean  @default(false)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  startupProfile  StartupProfile?
+  donorProfile    DonorProfile?
+  investorProfile InvestorProfile?
+
+  challenges              Challenge[]              @relation("DonorChallenges")
+  proposals               Proposal[]               @relation("StartupProposals")
+  grantsAsDonor           Grant[]                  @relation("DonorGrants")
+  grantsAsInvestor        Grant[]                  @relation("InvestorGrants")
+  grantsAsStartup         Grant[]                  @relation("StartupGrants")
+  uploadedProofs          Proof[]                  @relation("StartupProofs")
+  reviewedProofs          Proof[]                  @relation("ReviewerProofs")
+  accountabilityPassports AccountabilityPassport[] @relation("StartupPassports")
+  auditLogs               RegulatorAuditLog[]      @relation("RegulatorAuditLogs")
+  officerActions          GrantOfficerAction[]     @relation("OfficerActions")
+  feedbackGiven           FeedbackToStartup[]      @relation("FeedbackFromUser")
+
+  @@map("users")
+}
+
+model StartupProfile {
+  id                  String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String  @unique @map("user_id") @db.ObjectId
+  user                User    @relation(fields: [userId], references: [id])
+  startupName         String  @map("startup_name")
+  registrationNumber  String? @map("registration_number")
+  sector              String?
+  accountabilityScore Float?  @map("accountability_score")
+  passportHash        String? @map("passport_hash")
+
+  @@map("startup_profiles")
+}
+
+model DonorProfile {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String    @unique @map("user_id") @db.ObjectId
+  user             User      @relation(fields: [userId], references: [id])
+  donorType        DonorType @map("donor_type")
+  preferredSectors String[]  @map("preferred_sectors")
+
+  @@map("donor_profiles")
+}
+
+model InvestorProfile {
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String  @unique @map("user_id") @db.ObjectId
+  user               User    @relation(fields: [userId], references: [id])
+  investmentFocus    String? @map("investment_focus")
+  typicalTrancheSize Float?  @map("typical_tranche_size")
+
+  @@map("investor_profiles")
+}
+
+model Challenge {
+  id                 String          @id @default(auto()) @map("_id") @db.ObjectId
+  donorId            String          @map("donor_id") @db.ObjectId
+  donor              User            @relation("DonorChallenges", fields: [donorId], references: [id])
+  title              String
+  sector             String?
+  problemStatement   String?         @map("problem_statement")
+  submissionDeadline DateTime?       @map("submission_deadline")
+  reviewPeriodStart  DateTime?       @map("review_period_start")
+  announcementDate   DateTime?       @map("announcement_date")
+  status             ChallengeStatus @default(draft)
+  isPublic           Boolean         @default(true) @map("is_public")
+
+  parameters ChallengeParameter[]
+  proposals  Proposal[]
+
+  @@map("challenges")
+}
+
+model ChallengeParameter {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  challengeId String    @map("challenge_id") @db.ObjectId
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
+  paramName   String    @map("param_name")
+  paramType   ParamType @map("param_type")
+  required    Boolean   @default(false)
+
+  @@map("challenge_parameters")
+}
+
+model Proposal {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  challengeId     String         @map("challenge_id") @db.ObjectId
+  challenge       Challenge      @relation(fields: [challengeId], references: [id])
+  startupId       String         @map("startup_id") @db.ObjectId
+  startup         User           @relation("StartupProposals", fields: [startupId], references: [id])
+  ideaDescription String?        @map("idea_description")
+  budgetBreakdown Json?          @map("budget_breakdown")
+  milestonePlan   Json?          @map("milestone_plan")
+  pitchDeckUrl    String?        @map("pitch_deck_url")
+  videoUrl        String?        @map("video_url")
+  status          ProposalStatus @default(submitted)
+  donorScore      Int?           @map("donor_score")
+  donorFeedback   String?        @map("donor_feedback")
+  submittedAt     DateTime       @default(now()) @map("submitted_at")
+
+  grants    Grant[]
+  feedbacks FeedbackToStartup[]
+
+  @@map("proposals")
+}
+
+model Grant {
+  id                String      @id @default(auto()) @map("_id") @db.ObjectId
+  proposalId        String?     @map("proposal_id") @db.ObjectId
+  proposal          Proposal?   @relation(fields: [proposalId], references: [id])
+  donorId           String?     @map("donor_id") @db.ObjectId
+  donor             User?       @relation("DonorGrants", fields: [donorId], references: [id])
+  investorId        String?     @map("investor_id") @db.ObjectId
+  investor          User?       @relation("InvestorGrants", fields: [investorId], references: [id])
+  startupId         String      @map("startup_id") @db.ObjectId
+  startup           User        @relation("StartupGrants", fields: [startupId], references: [id])
+  totalAmount       Float       @map("total_amount")
+  equityPercent     Float?      @map("equity_percent")
+  revenueShareTerms String?     @map("revenue_share_terms")
+  status            GrantStatus @default(active)
+  createdAt         DateTime    @default(now()) @map("created_at")
+
+  milestones Milestone[]
+  tranches   Tranche[]
+
+  @@map("grants")
+}
+
+model Milestone {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  grantId           String    @map("grant_id") @db.ObjectId
+  grant             Grant     @relation(fields: [grantId], references: [id])
+  title             String
+  dueDate           DateTime? @map("due_date")
+  orderIndex        Int?      @map("order_index")
+  requiredProofType ProofType @map("required_proof_type")
+  tranchePercent    Float?    @map("tranche_percent")
+
+  proofs   Proof[]
+  tranches Tranche[]
+
+  @@map("milestones")
+}
+
+model Proof {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  milestoneId  String      @map("milestone_id") @db.ObjectId
+  milestone    Milestone   @relation(fields: [milestoneId], references: [id])
+  uploadedById String      @map("uploaded_by") @db.ObjectId
+  uploadedBy   User        @relation("StartupProofs", fields: [uploadedById], references: [id])
+  fileData     String?     @map("file_data")
+  fileHash     String?     @map("file_hash")
+  status       ProofStatus @default(pending)
+  reviewedById String?     @map("reviewed_by") @db.ObjectId
+  reviewedBy   User?       @relation("ReviewerProofs", fields: [reviewedById], references: [id])
+  reviewedAt   DateTime?   @map("reviewed_at")
+  comment      String?
+  submittedAt  DateTime    @default(now()) @map("submitted_at")
+
+  officerActions GrantOfficerAction[]
+
+  @@map("proofs")
+}
+
+model Tranche {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  grantId        String    @map("grant_id") @db.ObjectId
+  grant          Grant     @relation(fields: [grantId], references: [id])
+  milestoneId    String    @map("milestone_id") @db.ObjectId
+  milestone      Milestone @relation(fields: [milestoneId], references: [id])
+  amountReleased Float     @map("amount_released")
+  releasedAt     DateTime  @default(now()) @map("released_at")
+
+  @@map("tranches")
+}
+
+model AccountabilityPassport {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  startupId         String   @map("startup_id") @db.ObjectId
+  startup           User     @relation("StartupPassports", fields: [startupId], references: [id])
+  generatedAt       DateTime @default(now()) @map("generated_at")
+  pdfUrl            String?  @map("pdf_url")
+  verificationHash  String?  @map("verification_hash")
+  milestonesSummary Json?    @map("milestones_summary")
+
+  @@map("accountability_passports")
+}
+
+model RegulatorAuditLog {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  regulatorId      String   @map("regulator_id") @db.ObjectId
+  regulator        User     @relation("RegulatorAuditLogs", fields: [regulatorId], references: [id])
+  exportedAt       DateTime @default(now()) @map("exported_at")
+  exportedDataHash String?  @map("exported_data_hash")
+  queryParams      Json?    @map("query_params")
+  anonymized       Boolean  @default(true)
+
+  @@map("regulator_audit_logs")
+}
+
+model GrantOfficerAction {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  officerId String        @map("officer_id") @db.ObjectId
+  officer   User          @relation("OfficerActions", fields: [officerId], references: [id])
+  proofId   String        @map("proof_id") @db.ObjectId
+  proof     Proof         @relation(fields: [proofId], references: [id])
+  action    OfficerAction
+  notes     String?
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@map("grant_officer_actions")
+}
+
+model FeedbackToStartup {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  proposalId   String   @map("proposal_id") @db.ObjectId
+  proposal     Proposal @relation(fields: [proposalId], references: [id])
+  fromUserId   String   @map("from_user") @db.ObjectId
+  fromUser     User     @relation("FeedbackFromUser", fields: [fromUserId], references: [id])
+  feedbackText String?  @map("feedback_text")
+  isAnonymized Boolean  @default(true) @map("is_anonymized")
+  sentAt       DateTime @default(now()) @map("sent_at")
+
+  @@map("feedback_to_startups")
+}

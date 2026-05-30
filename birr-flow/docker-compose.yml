@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: birr_flow
+    restart: unless-stopped
+    entrypoint: >
+      bash -c '
+        if [ ! -f /data/db/mongo-keyfile ]; then
+          openssl rand -base64 756 > /data/db/mongo-keyfile
+          chmod 400 /data/db/mongo-keyfile
+          chown 999:999 /data/db/mongo-keyfile
+        fi
+        exec /usr/local/bin/docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --port 27017 --keyFile /data/db/mongo-keyfile
+      '
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: birrflowadmin
+      MONGO_INITDB_ROOT_PASSWORD: birrflowpass
+      MONGO_INITDB_DATABASE: birr_flow_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]}) }" | mongosh --port 27017 --quiet -u birrflowadmin -p birrflowpass
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  mongodb_data:
