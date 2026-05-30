@@ -19,6 +19,17 @@ export class ProposalService {
     });
   }
 
+  static async getAllProposals(filters?: { challengeId?: string; startupId?: string }) {
+    return prisma.proposal.findMany({
+      where: {
+        ...(filters?.challengeId && { challengeId: filters.challengeId }),
+        ...(filters?.startupId && { startupId: filters.startupId }),
+      },
+      include: { startup: true, challenge: true },
+      orderBy: { submittedAt: 'desc' }
+    });
+  }
+
   static async getProposalsByChallenge(challengeId: string) {
     return prisma.proposal.findMany({
       where: { challengeId },
@@ -42,6 +53,12 @@ export class ProposalService {
         ...(score !== undefined && { donorScore: score }),
         ...(feedback !== undefined && { donorFeedback: feedback }),
       },
+    });
+  }
+
+  static async deleteProposal(id: string) {
+    return prisma.proposal.delete({
+      where: { id }
     });
   }
 }

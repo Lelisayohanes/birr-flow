@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { ProposalService } from "@/services/proposal.service";
 import { createProposalSchema } from "@/lib/validations/proposal";
 import { z } from "zod";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import prisma from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,13 +24,25 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers()
+    });
+
+    if (!session) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user || !user.roles.includes("startup")) {
+      return NextResponse.json({ success: false, error: "Only startups can submit proposals" }, { status: 403 });
+    }
+
     const body = await req.json();
     const validatedData = createProposalSchema.parse(body);
 
-    const startupId = body.startupId;
-    if (!startupId) {
-       return NextResponse.json({ success: false, error: "startupId is required" }, { status: 400 });
-    }
+    const startupId = userId; // Force startupId to be the logged in user
 
     const proposal = await ProposalService.submitProposal({
       ideaDescription: validatedData.ideaDescription,

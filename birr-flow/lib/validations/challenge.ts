@@ -10,6 +10,7 @@ export const challengeParameterSchema = z.object({
 });
 
 export const createChallengeSchema = z.object({
+  donorId: z.string(),
   title: z.string().min(3),
   sector: z.string().optional(),
   problemStatement: z.string().optional(),
@@ -17,9 +18,8 @@ export const createChallengeSchema = z.object({
   reviewPeriodStart: z.string().datetime().optional(),
   announcementDate: z.string().datetime().optional(),
   isPublic: z.boolean().default(true),
+  status: ChallengeStatusSchema.default("draft"),
   parameters: z.array(challengeParameterSchema).optional(),
 });
 
-export const updateChallengeSchema = createChallengeSchema.partial().extend({
-  status: ChallengeStatusSchema.optional(),
-});
+export const updateChallengeSchema = createChallengeSchema.partial().omit({ donorId: true });

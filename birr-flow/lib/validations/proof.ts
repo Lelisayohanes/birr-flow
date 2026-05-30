@@ -5,17 +5,20 @@ export const OfficerActionSchema = z.enum(["mark_suspicious", "escalate", "clear
 
 export const submitProofSchema = z.object({
   milestoneId: z.string(),
+  uploadedById: z.string(),
   fileData: z.string().optional(),
   fileHash: z.string().optional(),
   comment: z.string().optional(),
 });
 
 export const reviewProofSchema = z.object({
+  reviewedById: z.string(),
   status: ProofStatusSchema,
   comment: z.string().optional(),
 });
 
 export const officerActionSchema = z.object({
+  officerId: z.string(),
   action: OfficerActionSchema,
   notes: z.string().optional(),
 });

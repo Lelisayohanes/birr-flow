@@ -17,8 +17,36 @@ export class UserService {
     });
   }
 
+  static async getAllUsers(filters?: { role?: Role }) {
+    return prisma.user.findMany({
+      where: filters?.role ? { roles: { has: filters.role } } : undefined,
+      include: {
+        startupProfile: true,
+        donorProfile: true,
+        investorProfile: true,
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
   static async getUsersByRole(role: Role) {
-    return prisma.user.findMany({ where: { role } });
+    return prisma.user.findMany({ where: { roles: { has: role } } });
+  }
+
+  static async updateUser(id: string, data: Prisma.UserUpdateInput) {
+    return prisma.user.update({
+      where: { id },
+      data,
+      include: {
+        startupProfile: true,
+        donorProfile: true,
+        investorProfile: true,
+      }
+    });
+  }
+
+  static async deleteUser(id: string) {
+    return prisma.user.delete({ where: { id } });
   }
 
   static async createStartupProfile(userId: string, data: Omit<Prisma.StartupProfileCreateInput, 'user'>) {

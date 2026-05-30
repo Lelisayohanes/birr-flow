@@ -24,6 +24,18 @@ export class GrantService {
     });
   }
 
+  static async getAllGrants(filters?: { status?: GrantStatus; startupId?: string; donorId?: string }) {
+    return prisma.grant.findMany({
+      where: {
+        ...(filters?.status && { status: filters.status }),
+        ...(filters?.startupId && { startupId: filters.startupId }),
+        ...(filters?.donorId && { donorId: filters.donorId }),
+      },
+      include: { startup: true, donor: true, investor: true },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
   static async getGrantsByStartup(startupId: string) {
     return prisma.grant.findMany({
       where: { startupId },
@@ -45,6 +57,12 @@ export class GrantService {
         ...data,
         grant: { connect: { id: grantId } },
       },
+    });
+  }
+
+  static async deleteGrant(id: string) {
+    return prisma.grant.delete({
+      where: { id }
     });
   }
 }
